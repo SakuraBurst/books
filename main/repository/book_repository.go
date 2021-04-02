@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"github.com/SakuraBurst/books.git/main/models"
@@ -38,7 +37,6 @@ func (r BookRepository) GetBookFromDatabase(rw http.ResponseWriter, id string) (
 	row := r.Database.QueryRow(query, id)
 	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
 	if err != nil {
-		fmt.Println("error")
 		return models.Book{}, err
 	}
 
@@ -56,7 +54,6 @@ func (r BookRepository) WriteBookToTheDatabase(rw http.ResponseWriter, book mode
 
 func (r BookRepository) UpdateBookFromDatabase(rw http.ResponseWriter, book models.Book, id string) error {
 	if r.checkDatabaseForBookIdExisting(id) {
-		fmt.Println("oooo")
 		insertString := `UPDATE books SET title = $1, author = $2, year = $3 WHERE id = $4`
 		r.Database.Exec(insertString, book.Title, book.Author, book.Year, id)
 		return nil
@@ -68,7 +65,6 @@ func (r BookRepository) UpdateBookFromDatabase(rw http.ResponseWriter, book mode
 
 func (r BookRepository) DeleteBookFromDatabase(rw http.ResponseWriter, id string) error {
 	if r.checkDatabaseForBookIdExisting(id) {
-		fmt.Println("oooo")
 		insertString := `DELETE FROM books WHERE id = $1`
 		r.Database.Exec(insertString, id)
 		return nil
@@ -81,6 +77,5 @@ func (r BookRepository) DeleteBookFromDatabase(rw http.ResponseWriter, id string
 func (r BookRepository) checkDatabaseForBookIdExisting(id string) bool {
 	sqlStmt := `SELECT * FROM books WHERE id = $1`
 	err := r.Database.QueryRow(sqlStmt, id).Scan()
-	fmt.Println(err)
 	return err != sql.ErrNoRows
 }

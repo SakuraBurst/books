@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/SakuraBurst/books.git/main/models"
@@ -47,7 +46,6 @@ func (c BookControler) AddBook(rw http.ResponseWriter, req *http.Request) {
 	} else {
 		SendErrorMessage(rw, nil)
 	}
-	fmt.Println(book)
 }
 
 func (c BookControler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
