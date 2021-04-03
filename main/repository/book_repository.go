@@ -3,7 +3,6 @@ package repository
 import (
 	"database/sql"
 	"errors"
-	"net/http"
 
 	"github.com/SakuraBurst/books.git/main/models"
 )
@@ -12,7 +11,7 @@ type BookRepository struct {
 	Database *sql.DB
 }
 
-func (r BookRepository) GetBooksFromDatabase(sl *[]models.Book, rw http.ResponseWriter) error {
+func (r BookRepository) GetBooksFromDatabase(sl *[]models.Book) error {
 	var book models.Book
 	rows, err := r.Database.Query("SELECT * FROM books")
 	if err != nil {
@@ -31,7 +30,7 @@ func (r BookRepository) GetBooksFromDatabase(sl *[]models.Book, rw http.Response
 	return nil
 }
 
-func (r BookRepository) GetBookFromDatabase(rw http.ResponseWriter, id string) (models.Book, error) {
+func (r BookRepository) GetBookFromDatabase(id string) (models.Book, error) {
 	var book models.Book
 	query := `SELECT * FROM books WHERE id = $1`
 	row := r.Database.QueryRow(query, id)
@@ -43,7 +42,7 @@ func (r BookRepository) GetBookFromDatabase(rw http.ResponseWriter, id string) (
 	return book, nil
 }
 
-func (r BookRepository) WriteBookToTheDatabase(rw http.ResponseWriter, book models.Book) error {
+func (r BookRepository) WriteBookToTheDatabase(book models.Book) error {
 	insertString := `INSERT INTO books(title, author, year) VALUES($1, $2, $3)`
 	_, err := r.Database.Exec(insertString, book.Title, book.Author, book.Year)
 	if err != nil {
@@ -52,7 +51,7 @@ func (r BookRepository) WriteBookToTheDatabase(rw http.ResponseWriter, book mode
 	return nil
 }
 
-func (r BookRepository) UpdateBookFromDatabase(rw http.ResponseWriter, book models.Book, id string) error {
+func (r BookRepository) UpdateBookFromDatabase(book models.Book, id string) error {
 	if r.checkDatabaseForBookIdExisting(id) {
 		insertString := `UPDATE books SET title = $1, author = $2, year = $3 WHERE id = $4`
 		r.Database.Exec(insertString, book.Title, book.Author, book.Year, id)
@@ -63,7 +62,7 @@ func (r BookRepository) UpdateBookFromDatabase(rw http.ResponseWriter, book mode
 
 }
 
-func (r BookRepository) DeleteBookFromDatabase(rw http.ResponseWriter, id string) error {
+func (r BookRepository) DeleteBookFromDatabase(id string) error {
 	if r.checkDatabaseForBookIdExisting(id) {
 		insertString := `DELETE FROM books WHERE id = $1`
 		r.Database.Exec(insertString, id)

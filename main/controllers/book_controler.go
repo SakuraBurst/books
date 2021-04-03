@@ -15,10 +15,14 @@ type BookControler struct {
 
 func (c BookControler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 	books := make([]models.Book, 0)
-	err := c.Repository.GetBooksFromDatabase(&books, rw)
+	err := c.Repository.GetBooksFromDatabase(&books)
 	if err != nil {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusNotFound)
 		SendErrorMessage(rw, err)
 	} else {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusOK)
 		js, _ := json.Marshal(books)
 		rw.Write(js)
 	}
@@ -26,10 +30,14 @@ func (c BookControler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 func (c BookControler) GetBook(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
-	book, er := c.Repository.GetBookFromDatabase(rw, vars["id"])
+	book, er := c.Repository.GetBookFromDatabase(vars["id"])
 	if er != nil {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusNotFound)
 		resp.Encode(er)
 	} else {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusOK)
 		resp.Encode(book)
 	}
 
@@ -41,9 +49,13 @@ func (c BookControler) AddBook(rw http.ResponseWriter, req *http.Request) {
 
 	decode.Decode(&book)
 	if book.IsBookValid() {
-		c.Repository.WriteBookToTheDatabase(rw, book)
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusOK)
+		c.Repository.WriteBookToTheDatabase(book)
 		c.GetBooks(rw, req)
 	} else {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusNotFound)
 		SendErrorMessage(rw, nil)
 	}
 }
@@ -54,12 +66,23 @@ func (c BookControler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 	resp := json.NewEncoder(rw)
 	decode := json.NewDecoder(req.Body)
 	decode.Decode(&book)
-	er := c.Repository.UpdateBookFromDatabase(rw, book, vars["id"])
-	if er != nil {
-		resp.Encode(er)
+	if book.IsBookValid() {
+		er := c.Repository.UpdateBookFromDatabase(book, vars["id"])
+		if er != nil {
+			rw.Header().Set("Content-Type", "application/json")
+			rw.WriteHeader(http.StatusNotFound)
+			resp.Encode(er)
+		} else {
+			rw.Header().Set("Content-Type", "application/json")
+			rw.WriteHeader(http.StatusOK)
+			book, _ = c.Repository.GetBookFromDatabase(vars["id"])
+			resp.Encode(book)
+		}
+
 	} else {
-		book, _ = c.Repository.GetBookFromDatabase(rw, vars["id"])
-		resp.Encode(book)
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusNotFound)
+		SendErrorMessage(rw, nil)
 	}
 
 }
@@ -67,10 +90,14 @@ func (c BookControler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 func (c BookControler) DeleteBook(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
-	er := c.Repository.DeleteBookFromDatabase(rw, vars["id"])
+	er := c.Repository.DeleteBookFromDatabase(vars["id"])
 	if er != nil {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusNotFound)
 		SendErrorMessage(rw, nil)
 	} else {
+		rw.Header().Set("Content-Type", "application/json")
+		rw.WriteHeader(http.StatusOK)
 		resp.Encode(models.SuccessMessage)
 	}
 
