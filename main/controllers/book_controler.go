@@ -5,21 +5,15 @@ import (
 	"net/http"
 
 	"github.com/SakuraBurst/books.git/main/models"
-	"github.com/SakuraBurst/books.git/main/repository"
 	"github.com/gorilla/mux"
 )
 
-type BookControler struct {
-	Repository repository.BookRepository
-}
-
-func (c BookControler) GetBooks(rw http.ResponseWriter, req *http.Request) {
+func (c Controler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 	books := make([]models.Book, 0)
 	err := c.Repository.GetBooksFromDatabase(&books)
 	if err != nil {
 		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusNotFound)
-		SendErrorMessage(rw, err)
+		SendErrorMessage(rw, err, http.StatusNotFound)
 	} else {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusOK)
@@ -27,7 +21,7 @@ func (c BookControler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 		rw.Write(js)
 	}
 }
-func (c BookControler) GetBook(rw http.ResponseWriter, req *http.Request) {
+func (c Controler) GetBook(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
 	book, er := c.Repository.GetBookFromDatabase(vars["id"])
@@ -43,7 +37,7 @@ func (c BookControler) GetBook(rw http.ResponseWriter, req *http.Request) {
 
 }
 
-func (c BookControler) AddBook(rw http.ResponseWriter, req *http.Request) {
+func (c Controler) AddBook(rw http.ResponseWriter, req *http.Request) {
 	decode := json.NewDecoder(req.Body)
 	book := models.Book{}
 
@@ -55,12 +49,11 @@ func (c BookControler) AddBook(rw http.ResponseWriter, req *http.Request) {
 		c.GetBooks(rw, req)
 	} else {
 		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusNotFound)
-		SendErrorMessage(rw, nil)
+		SendErrorMessage(rw, nil, http.StatusNotFound)
 	}
 }
 
-func (c BookControler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
+func (c Controler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 	var book models.Book
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
@@ -81,20 +74,18 @@ func (c BookControler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 
 	} else {
 		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusNotFound)
-		SendErrorMessage(rw, nil)
+		SendErrorMessage(rw, nil, http.StatusNotFound)
 	}
 
 }
 
-func (c BookControler) DeleteBook(rw http.ResponseWriter, req *http.Request) {
+func (c Controler) DeleteBook(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
 	er := c.Repository.DeleteBookFromDatabase(vars["id"])
 	if er != nil {
 		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusNotFound)
-		SendErrorMessage(rw, nil)
+		SendErrorMessage(rw, nil, http.StatusNotFound)
 	} else {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusOK)

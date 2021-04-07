@@ -15,7 +15,8 @@ func ServerStop(err error) {
 
 }
 
-func SendErrorMessage(rw http.ResponseWriter, errorMessage error) {
+func SendErrorMessage(rw http.ResponseWriter, errorMessage error, errorStatus int) {
+	rw.WriteHeader(errorStatus)
 	var errorjson []byte
 	if errorMessage != nil {
 		errorjson, _ = json.Marshal(errorMessage)

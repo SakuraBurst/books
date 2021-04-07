@@ -40,7 +40,7 @@ type putBookRequest struct {
 }
 
 var BookRepository repository.BookRepository
-var BooksController controllers.BookControler
+var BooksController controllers.Controler
 var FirstBook string = `{"Title":"Гарри повар и филосовское яйцо","ID":1,"Author":"Kora0108","Year":"2012-01-01T00:00:00Z"}`
 var RightTestBookMock string = `{"Title":"Гарри повар и автотесты","Author":"SakuraBurst","Year":"03-04-2021"}`
 var WrongTestBookMock string = `{"Title":"Гарри повар и автотесты","Author":"SakuraBurst"}`
@@ -53,7 +53,7 @@ func TestMain(m *testing.M) {
 func testSetup() {
 	database := driver.ConnectDatabase("DB_URL")
 	BookRepository = repository.BookRepository{Database: database}
-	BooksController = controllers.BookControler{Repository: BookRepository}
+	BooksController = controllers.Controler{Repository: BookRepository}
 }
 
 func TestGetBooks(t *testing.T) {
