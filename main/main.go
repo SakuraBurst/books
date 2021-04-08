@@ -13,6 +13,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
+// TODO: EVENT EMMITER ДЛЯ SQL запросов, DATA TRANSFER OBJECT для получения объектов из json
 var database *sql.DB
 
 func main() {

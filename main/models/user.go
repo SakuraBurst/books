@@ -9,7 +9,7 @@ type User struct {
 	Password  string
 }
 
-func (u User) IsUserValid() bool {
+func (u User) IsValid() bool {
 	return checks.IsStringLengthMoreThanZero(u.FirstName) &&
 		checks.IsStringLengthMoreThanZero(u.LastName) &&
 		checks.IsStringLengthMoreThanZero(u.Email) &&

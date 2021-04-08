@@ -3,7 +3,10 @@ package repository
 import (
 	"database/sql"
 	"errors"
+	"fmt"
+	"io"
 
+	"github.com/SakuraBurst/books.git/main/helpers"
 	"github.com/SakuraBurst/books.git/main/models"
 )
 
@@ -42,6 +45,24 @@ func (r BookRepository) GetBookFromDatabase(id string) (models.Book, error) {
 	return book, nil
 }
 
+func (r BookRepository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io.ReadCloser) error {
+	book := helpers.MakeNewInstanse(newInstanse, body)
+	if book.IsValid() {
+		fields := models.GetFields(newInstanse)
+		insertString := fmt.Sprintf(`INSERT INTO %v(%v) VALUES(%v)`, getInstanseTable(newInstanse), fields.BdFields, fields.BdValues)
+		_, err := r.Database.Exec(insertString)
+		if err != nil {
+			return err
+		}
+		return nil
+
+	} else {
+		fmt.Println("error")
+		return errors.New("some data is unprocessable")
+	}
+
+}
+
 func (r BookRepository) WriteBookToTheDatabase(book models.Book) error {
 	insertString := `INSERT INTO books(title, author, year) VALUES($1, $2, $3)`
 	_, err := r.Database.Exec(insertString, book.Title, book.Author, book.Year)
@@ -77,4 +98,9 @@ func (r BookRepository) checkDatabaseForBookIdExisting(id string) bool {
 	sqlStmt := `SELECT * FROM books WHERE id = $1`
 	err := r.Database.QueryRow(sqlStmt, id).Scan()
 	return err != sql.ErrNoRows
+}
+
+func getInstanseTable(instanse models.InstanseMaker) string {
+	instType := fmt.Sprintf("%T", instanse)
+	return models.Tables[instType]
 }

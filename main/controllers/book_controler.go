@@ -38,18 +38,16 @@ func (c Controler) GetBook(rw http.ResponseWriter, req *http.Request) {
 }
 
 func (c Controler) AddBook(rw http.ResponseWriter, req *http.Request) {
-	decode := json.NewDecoder(req.Body)
-	book := models.Book{}
+	err := c.Repository.WriteToTheDatabase(&models.Book{}, req.Body)
 
-	decode.Decode(&book)
-	if book.IsBookValid() {
+	if err != nil {
 		rw.Header().Set("Content-Type", "application/json")
-		rw.WriteHeader(http.StatusOK)
-		c.Repository.WriteBookToTheDatabase(book)
-		c.GetBooks(rw, req)
+		SendErrorMessage(rw, err, http.StatusNotFound)
+
 	} else {
 		rw.Header().Set("Content-Type", "application/json")
-		SendErrorMessage(rw, nil, http.StatusNotFound)
+		rw.WriteHeader(http.StatusOK)
+		c.GetBooks(rw, req)
 	}
 }
 
@@ -59,7 +57,7 @@ func (c Controler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 	resp := json.NewEncoder(rw)
 	decode := json.NewDecoder(req.Body)
 	decode.Decode(&book)
-	if book.IsBookValid() {
+	if book.IsValid() {
 		er := c.Repository.UpdateBookFromDatabase(book, vars["id"])
 		if er != nil {
 			rw.Header().Set("Content-Type", "application/json")
