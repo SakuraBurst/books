@@ -25,7 +25,7 @@ func (c Controler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 func (c Controler) GetBook(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
-	book, er := c.Repository.GetBookFromDatabase(vars["id"])
+	book, er := c.Repository.GetOneFromDatabase(vars["id"], "books", models.Book{})
 	if er != nil {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusNotFound)
@@ -63,7 +63,7 @@ func (c Controler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 	} else {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusOK)
-		book, _ := c.Repository.GetBookFromDatabase(vars["id"])
+		book, _ := c.Repository.GetOneFromDatabase(vars["id"], "books", models.Book{})
 		resp.Encode(book)
 	}
 }

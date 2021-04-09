@@ -1,7 +1,6 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/json"
 	"io"
 )
@@ -23,7 +22,7 @@ func (book Book) NewInstanseFromJson(body io.ReadCloser) InstanseMaker {
 	return book
 }
 
-func (book Book) NewInstanseFromDB(row *sql.Rows) (InstanseMaker, error) {
+func (book Book) NewInstanseFromDB(row Scans) (InstanseMaker, error) {
 	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
 	if err != nil {
 		return Book{}, err

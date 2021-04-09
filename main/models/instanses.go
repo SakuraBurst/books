@@ -1,16 +1,18 @@
 package models
 
 import (
-	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
 	"log"
 )
 
+type Scans interface {
+	Scan(dest ...interface{}) error
+}
 type InstanseMaker interface {
 	NewInstanseFromJson(body io.ReadCloser) InstanseMaker
-	NewInstanseFromDB(row *sql.Rows) (InstanseMaker, error)
+	NewInstanseFromDB(row Scans) (InstanseMaker, error)
 	IsValid() bool
 }
 

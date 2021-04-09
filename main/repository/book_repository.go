@@ -34,16 +34,16 @@ func (r BookRepository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst mode
 	return nil
 }
 
-// func (r BookRepository) GetOneFromDatabase(id, table string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
-// 	query := fmt.Sprintf(`SELECT * FROM %v WHERE id = $1`, table)
-// 	row := r.Database.QueryRow(query, id)
-// 	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
-// 	if err != nil {
-// 		return models.Book{}, err
-// 	}
+func (r BookRepository) GetOneFromDatabase(id, table string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
+	query := fmt.Sprintf(`SELECT * FROM %v WHERE id = $1`, table)
+	row := r.Database.QueryRow(query, id)
+	book, err := instanse.NewInstanseFromDB(row)
+	if err != nil {
+		return models.Book{}, err
+	}
 
-// 	return book, nil
-// }
+	return book, nil
+}
 
 func (r BookRepository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io.ReadCloser) error {
 	newInstanse = helpers.MakeNewInstanse(newInstanse, body)
