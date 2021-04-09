@@ -1,6 +1,7 @@
 package models
 
 import (
+	"database/sql"
 	"encoding/json"
 	"io"
 )
@@ -16,7 +17,17 @@ func (book Book) IsValid() bool {
 	return len(book.Author) > 0 && len(book.Title) > 0 && len(book.Year) > 0
 }
 
-func (book *Book) NewInstanseFromJson(body io.ReadCloser) {
+func (book Book) NewInstanseFromJson(body io.ReadCloser) InstanseMaker {
 	decoder := json.NewDecoder(body)
-	decoder.Decode(book)
+	decoder.Decode(&book)
+	return book
+}
+
+func (book Book) NewInstanseFromDB(row *sql.Rows) (InstanseMaker, error) {
+	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
+	if err != nil {
+		return Book{}, err
+	}
+	newBook := book
+	return newBook, nil
 }

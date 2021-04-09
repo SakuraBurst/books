@@ -6,7 +6,7 @@ import (
 	"github.com/SakuraBurst/books.git/main/models"
 )
 
-func MakeNewInstanse(str models.InstanseMaker, body io.ReadCloser) models.InstanseMaker {
-	str.NewInstanseFromJson(body)
-	return str
+func MakeNewInstanse(instanse models.InstanseMaker, body io.ReadCloser) models.InstanseMaker {
+	newInstanse := instanse.NewInstanseFromJson(body)
+	return newInstanse
 }
