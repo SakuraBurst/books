@@ -141,7 +141,7 @@ func TestAddBook(t *testing.T) {
 
 	// не уверен на счет этого, должен ли респонс отдаваться в порядке записи в бд? но удалять тестовую запись надо, а лучших идей у меня нет
 	testedBookId := strconv.Itoa(books[len(books)-1].ID)
-	BookRepository.DeleteBookFromDatabase(testedBookId)
+	BookRepository.DeleteFromDatabase(testedBookId, "books")
 }
 
 func TestUpdateBook(t *testing.T) {

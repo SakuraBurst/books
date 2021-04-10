@@ -15,7 +15,8 @@ type BookRepository struct {
 	Database *sql.DB
 }
 
-func (r BookRepository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst models.InstanseMaker, table string) error {
+func (r BookRepository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst models.InstanseMaker) error {
+	table := getInstanseTable(inst)
 	var query = fmt.Sprintf("SELECT * FROM %v", table)
 	rows, err := r.Database.Query(query)
 	if err != nil {
@@ -34,7 +35,8 @@ func (r BookRepository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst mode
 	return nil
 }
 
-func (r BookRepository) GetOneFromDatabase(id, table string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
+func (r BookRepository) GetOneFromDatabase(id string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
+	table := getInstanseTable(instanse)
 	query := fmt.Sprintf(`SELECT * FROM %v WHERE id = $1`, table)
 	row := r.Database.QueryRow(query, id)
 	book, err := instanse.NewInstanseFromDB(row)
@@ -67,11 +69,12 @@ func (r BookRepository) WriteToTheDatabase(newInstanse models.InstanseMaker, bod
 }
 
 func (r BookRepository) UpdateFromDatabase(newInstanse models.InstanseMaker, body io.ReadCloser, id string) error {
-	if r.checkDatabaseForBookIdExisting(id) {
-		helpers.MakeNewInstanse(newInstanse, body)
+	table := getInstanseTable(newInstanse)
+	if r.checkDatabaseForIdExisting(id, table) {
+		newInstanse = helpers.MakeNewInstanse(newInstanse, body)
 		if newInstanse.IsValid() {
 			fields := models.GetFields(newInstanse)
-			query := generateReplaceQuery(getInstanseTable(newInstanse), fields, id)
+			query := generateReplaceQuery(table, fields, id)
 			fmt.Println(query)
 			r.Database.Exec(query, fields.BdValues...)
 			return nil
@@ -85,29 +88,9 @@ func (r BookRepository) UpdateFromDatabase(newInstanse models.InstanseMaker, bod
 
 }
 
-// func (r BookRepository) WriteBookToTheDatabase(book models.Book) error {
-// 	insertString := `INSERT INTO books(title, author, year) VALUES($1, $2, $3)`
-// 	_, err := r.Database.Exec(insertString, book.Title, book.Author, book.Year)
-// 	if err != nil {
-// 		return err
-// 	}
-// 	return nil
-// }
-
-// func (r BookRepository) UpdateBookFromDatabase(book models.Book, id string) error {
-// 	if r.checkDatabaseForBookIdExisting(id) {
-// 		insertString := `UPDATE books SET title = $1, author = $2, year = $3 WHERE id = $4`
-// 		r.Database.Exec(insertString, book.Title, book.Author, book.Year, id)
-// 		return nil
-// 	} else {
-// 		return errors.New("id does not exist")
-// 	}
-
-// }
-
-func (r BookRepository) DeleteBookFromDatabase(id string) error {
-	if r.checkDatabaseForBookIdExisting(id) {
-		insertString := `DELETE FROM books WHERE id = $1`
+func (r BookRepository) DeleteFromDatabase(id, table string) error {
+	if r.checkDatabaseForIdExisting(id, table) {
+		insertString := fmt.Sprintf(`DELETE FROM %v WHERE id = $1`, table)
 		r.Database.Exec(insertString, id)
 		return nil
 	} else {
@@ -116,8 +99,8 @@ func (r BookRepository) DeleteBookFromDatabase(id string) error {
 
 }
 
-func (r BookRepository) checkDatabaseForBookIdExisting(id string) bool {
-	sqlStmt := `SELECT * FROM books WHERE id = $1`
+func (r BookRepository) checkDatabaseForIdExisting(id, table string) bool {
+	sqlStmt := fmt.Sprintf(`SELECT * FROM %v WHERE id = $1`, table)
 	err := r.Database.QueryRow(sqlStmt, id).Scan()
 	return err != sql.ErrNoRows
 }

@@ -11,7 +11,7 @@ import (
 func (c Controler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 	books := make([]models.InstanseMaker, 0)
 	var book models.Book
-	err := c.Repository.GetAllFromDatabase(&books, &book, "books")
+	err := c.Repository.GetAllFromDatabase(&books, &book)
 	if err != nil {
 		rw.Header().Set("Content-Type", "application/json")
 		SendErrorMessage(rw, err, http.StatusNotFound)
@@ -25,7 +25,7 @@ func (c Controler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 func (c Controler) GetBook(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
-	book, er := c.Repository.GetOneFromDatabase(vars["id"], "books", models.Book{})
+	book, er := c.Repository.GetOneFromDatabase(vars["id"], models.Book{})
 	if er != nil {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusNotFound)
@@ -63,7 +63,7 @@ func (c Controler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 	} else {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusOK)
-		book, _ := c.Repository.GetOneFromDatabase(vars["id"], "books", models.Book{})
+		book, _ := c.Repository.GetOneFromDatabase(vars["id"], models.Book{})
 		resp.Encode(book)
 	}
 }
@@ -71,7 +71,7 @@ func (c Controler) UpdateBook(rw http.ResponseWriter, req *http.Request) {
 func (c Controler) DeleteBook(rw http.ResponseWriter, req *http.Request) {
 	vars := mux.Vars(req)
 	resp := json.NewEncoder(rw)
-	er := c.Repository.DeleteBookFromDatabase(vars["id"])
+	er := c.Repository.DeleteFromDatabase(vars["id"], "books")
 	if er != nil {
 		rw.Header().Set("Content-Type", "application/json")
 		SendErrorMessage(rw, nil, http.StatusNotFound)
