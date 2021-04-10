@@ -11,7 +11,7 @@ type Scans interface {
 	Scan(dest ...interface{}) error
 }
 type InstanseMaker interface {
-	NewInstanseFromJson(body io.ReadCloser) InstanseMaker
+	NewInstanseFromJson(body io.ReadCloser) (InstanseMaker, error)
 	NewInstanseFromDB(row Scans) (InstanseMaker, error)
 	IsValid() bool
 }

@@ -4,7 +4,10 @@ import (
 	"encoding/json"
 	"io"
 
+	"errors"
+
 	"github.com/SakuraBurst/books.git/main/helpers/checks"
+	"github.com/SakuraBurst/books.git/main/helpers/crypt"
 )
 
 type User struct {
@@ -22,10 +25,16 @@ func (u User) IsValid() bool {
 		checks.IsStringLengthMoreThanZero(u.Password)
 }
 
-func (u User) NewInstanseFromJson(body io.ReadCloser) InstanseMaker {
+func (u User) NewInstanseFromJson(body io.ReadCloser) (InstanseMaker, error) {
 	decoder := json.NewDecoder(body)
 	decoder.Decode(&u)
-	return u
+	if u.IsValid() {
+		u.Password = crypt.CryptPass([]byte(u.Password))
+		return u, nil
+	} else {
+		return User{}, errors.New("some data is unprocessable")
+	}
+
 }
 
 func (u User) NewInstanseFromDB(row Scans) (InstanseMaker, error) {

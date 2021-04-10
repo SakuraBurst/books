@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 )
 
@@ -16,10 +17,14 @@ func (book Book) IsValid() bool {
 	return len(book.Author) > 0 && len(book.Title) > 0 && len(book.Year) > 0
 }
 
-func (book Book) NewInstanseFromJson(body io.ReadCloser) InstanseMaker {
+func (book Book) NewInstanseFromJson(body io.ReadCloser) (InstanseMaker, error) {
 	decoder := json.NewDecoder(body)
 	decoder.Decode(&book)
-	return book
+	if book.IsValid() {
+		return book, nil
+	} else {
+		return Book{}, errors.New("some data is unprocessable")
+	}
 }
 
 func (book Book) NewInstanseFromDB(row Scans) (InstanseMaker, error) {

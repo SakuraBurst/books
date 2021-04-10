@@ -49,9 +49,12 @@ func (r Repository) GetOneFromDatabase(id string, instanse models.InstanseMaker)
 }
 
 func (r Repository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io.ReadCloser) error {
-	newInstanse = helpers.MakeNewInstanse(newInstanse, body)
+	newInstanse, err := helpers.MakeNewInstanse(newInstanse, body)
 
-	if newInstanse.IsValid() {
+	if err != nil {
+		fmt.Println("error")
+		return err
+	} else {
 		fields := models.GetFields(newInstanse)
 		query := generateAddQuery(getInstanseTable(newInstanse), fields)
 		fmt.Println(query)
@@ -61,10 +64,6 @@ func (r Repository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io
 			return err
 		}
 		return nil
-
-	} else {
-		fmt.Println("error")
-		return errors.New("some data is unprocessable")
 	}
 
 }
@@ -72,16 +71,17 @@ func (r Repository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io
 func (r Repository) UpdateFromDatabase(newInstanse models.InstanseMaker, body io.ReadCloser, id string) error {
 	table := getInstanseTable(newInstanse)
 	if r.checkDatabaseForIdExisting(id, table) {
-		newInstanse = helpers.MakeNewInstanse(newInstanse, body)
-		if newInstanse.IsValid() {
+		newInstanse, err := helpers.MakeNewInstanse(newInstanse, body)
+		if err != nil {
+			fmt.Println("error")
+			return err
+		} else {
 			fields := models.GetFields(newInstanse)
 			query := generateReplaceQuery(table, fields, id)
 			fmt.Println(query)
 			r.Database.Exec(query, fields.BdValues...)
 			return nil
-		} else {
-			fmt.Println("error")
-			return errors.New("some data is unprocessable")
+
 		}
 	} else {
 		return errors.New("id does not exist")
