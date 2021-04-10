@@ -19,9 +19,11 @@ func SendErrorMessage(rw http.ResponseWriter, errorMessage error, errorStatus in
 	rw.WriteHeader(errorStatus)
 	var errorjson []byte
 	if errorMessage != nil {
+		errorMessage := models.Message{Text: errorMessage.Error(), Status: "error"}
 		errorjson, _ = json.Marshal(errorMessage)
 	} else {
 		errorjson, _ = json.Marshal(models.ErrorMessage)
 	}
+
 	rw.Write(errorjson)
 }

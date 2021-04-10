@@ -52,13 +52,10 @@ func (r Repository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io
 	newInstanse, err := helpers.MakeNewInstanse(newInstanse, body)
 
 	if err != nil {
-		fmt.Println("error")
 		return err
 	} else {
 		fields := models.GetFields(newInstanse)
 		query := generateAddQuery(getInstanseTable(newInstanse), fields)
-		fmt.Println(query)
-		fmt.Println(fields)
 		_, err := r.Database.Exec(query, fields.BdValues...)
 		if err != nil {
 			return err
@@ -78,7 +75,6 @@ func (r Repository) UpdateFromDatabase(newInstanse models.InstanseMaker, body io
 		} else {
 			fields := models.GetFields(newInstanse)
 			query := generateReplaceQuery(table, fields, id)
-			fmt.Println(query)
 			r.Database.Exec(query, fields.BdValues...)
 			return nil
 

@@ -23,7 +23,7 @@ type Fields struct {
 
 var Tables map[string]string = map[string]string{
 	"models.Book": "books",
-	"models.User": "books",
+	"models.User": "users",
 }
 
 func GetFields(instanse InstanseMaker) Fields {
@@ -46,21 +46,6 @@ func GetFields(instanse InstanseMaker) Fields {
 	fields.BdValues = bdValues
 	return fields
 }
-
-// func GetReplaceFields(instanse InstanseMaker) ReplaceFields {
-// 	instanseMap := getMap(instanse)
-// 	var replaceMap ReplaceFields = make(ReplaceFields)
-// 	for key, value := range instanseMap {
-// 		if key != "ID" {
-// 			switch typedValue := value.(type) {
-// 			case string:
-// 				replaceMap[key] = typedValue
-// 			}
-// 		}
-
-// 	}
-// 	return replaceMap
-// }
 
 func getMap(instanse InstanseMaker) map[string]interface{} {
 	byteJson, err := json.Marshal(instanse)
