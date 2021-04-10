@@ -27,6 +27,5 @@ func (book Book) NewInstanseFromDB(row Scans) (InstanseMaker, error) {
 	if err != nil {
 		return Book{}, err
 	}
-	newBook := book
-	return newBook, nil
+	return book, nil
 }

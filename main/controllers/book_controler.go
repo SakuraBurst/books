@@ -10,8 +10,7 @@ import (
 
 func (c Controler) GetBooks(rw http.ResponseWriter, req *http.Request) {
 	books := make([]models.InstanseMaker, 0)
-	var book models.Book
-	err := c.Repository.GetAllFromDatabase(&books, &book)
+	err := c.Repository.GetAllFromDatabase(&books, models.Book{})
 	if err != nil {
 		rw.Header().Set("Content-Type", "application/json")
 		SendErrorMessage(rw, err, http.StatusNotFound)

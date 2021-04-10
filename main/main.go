@@ -13,13 +13,13 @@ import (
 	_ "github.com/lib/pq"
 )
 
-// TODO: EVENT EMMITER ДЛЯ SQL запросов, DATA TRANSFER OBJECT для получения объектов из json
+// TODO: EVENT EMMITER ДЛЯ SQL запросов
 var database *sql.DB
 
 func main() {
 	router := mux.NewRouter()
 	database = driver.ConnectDatabase("DB_URL")
-	repo := repository.BookRepository{Database: database}
+	repo := repository.Repository{Database: database}
 	booksController := controllers.Controler{Repository: repo}
 	router.HandleFunc("/books", booksController.GetBooks).Methods("GET")
 	router.HandleFunc("/books/{id}", booksController.GetBook).Methods("GET")

@@ -11,13 +11,14 @@ import (
 	"github.com/SakuraBurst/books.git/main/models"
 )
 
-type BookRepository struct {
+type Repository struct {
 	Database *sql.DB
 }
 
-func (r BookRepository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst models.InstanseMaker) error {
+func (r Repository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst models.InstanseMaker) error {
 	table := getInstanseTable(inst)
 	var query = fmt.Sprintf("SELECT * FROM %v", table)
+	fmt.Println(query)
 	rows, err := r.Database.Query(query)
 	if err != nil {
 		return err
@@ -35,7 +36,7 @@ func (r BookRepository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst mode
 	return nil
 }
 
-func (r BookRepository) GetOneFromDatabase(id string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
+func (r Repository) GetOneFromDatabase(id string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
 	table := getInstanseTable(instanse)
 	query := fmt.Sprintf(`SELECT * FROM %v WHERE id = $1`, table)
 	row := r.Database.QueryRow(query, id)
@@ -47,7 +48,7 @@ func (r BookRepository) GetOneFromDatabase(id string, instanse models.InstanseMa
 	return book, nil
 }
 
-func (r BookRepository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io.ReadCloser) error {
+func (r Repository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io.ReadCloser) error {
 	newInstanse = helpers.MakeNewInstanse(newInstanse, body)
 
 	if newInstanse.IsValid() {
@@ -68,7 +69,7 @@ func (r BookRepository) WriteToTheDatabase(newInstanse models.InstanseMaker, bod
 
 }
 
-func (r BookRepository) UpdateFromDatabase(newInstanse models.InstanseMaker, body io.ReadCloser, id string) error {
+func (r Repository) UpdateFromDatabase(newInstanse models.InstanseMaker, body io.ReadCloser, id string) error {
 	table := getInstanseTable(newInstanse)
 	if r.checkDatabaseForIdExisting(id, table) {
 		newInstanse = helpers.MakeNewInstanse(newInstanse, body)
@@ -88,7 +89,7 @@ func (r BookRepository) UpdateFromDatabase(newInstanse models.InstanseMaker, bod
 
 }
 
-func (r BookRepository) DeleteFromDatabase(id, table string) error {
+func (r Repository) DeleteFromDatabase(id, table string) error {
 	if r.checkDatabaseForIdExisting(id, table) {
 		insertString := fmt.Sprintf(`DELETE FROM %v WHERE id = $1`, table)
 		r.Database.Exec(insertString, id)
@@ -99,7 +100,7 @@ func (r BookRepository) DeleteFromDatabase(id, table string) error {
 
 }
 
-func (r BookRepository) checkDatabaseForIdExisting(id, table string) bool {
+func (r Repository) checkDatabaseForIdExisting(id, table string) bool {
 	sqlStmt := fmt.Sprintf(`SELECT * FROM %v WHERE id = $1`, table)
 	err := r.Database.QueryRow(sqlStmt, id).Scan()
 	return err != sql.ErrNoRows
