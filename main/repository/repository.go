@@ -36,16 +36,19 @@ func (r Repository) GetAllFromDatabase(sl *[]models.InstanseMaker, inst models.I
 	return nil
 }
 
-func (r Repository) GetOneFromDatabase(id string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
+func (r Repository) GetOneFromDatabase(value interface{}, key string, instanse models.InstanseMaker) (models.InstanseMaker, error) {
+	if len(key) == 0 {
+		key = "id"
+	}
 	table := getInstanseTable(instanse)
-	query := fmt.Sprintf(`SELECT * FROM %v WHERE id = $1`, table)
-	row := r.Database.QueryRow(query, id)
-	book, err := instanse.NewInstanseFromDB(row)
+	query := fmt.Sprintf(`SELECT * FROM %v WHERE %v = $1`, table, key)
+	row := r.Database.QueryRow(query, value)
+	newInstanse, err := instanse.NewInstanseFromDB(row)
 	if err != nil {
-		return models.Book{}, err
+		return nil, err
 	}
 
-	return book, nil
+	return newInstanse, nil
 }
 
 func (r Repository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io.ReadCloser) error {

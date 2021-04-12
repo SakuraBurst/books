@@ -21,12 +21,14 @@ func main() {
 	database = driver.ConnectDatabase("DB_URL")
 	repo := repository.Repository{Database: database}
 	booksController := controllers.Controler{Repository: repo}
-	router.HandleFunc("/books", booksController.GetBooks).Methods("GET")
-	router.HandleFunc("/books/{id}", booksController.GetBook).Methods("GET")
-	router.HandleFunc("/books/{id}", booksController.UpdateBook).Methods("PUT")
-	router.HandleFunc("/books", booksController.AddBook).Methods("POST")
-	router.HandleFunc("/books/{id}", booksController.DeleteBook).Methods("DELETE")
-	router.HandleFunc("/registration", booksController.Registration).Methods("POST")
-	router.Use(middleware.LoggingMiddleware)
+	router.Use(middleware.ContentTypeMiddleware)
+	router.HandleFunc("/api/books", booksController.GetBooks).Methods("GET")
+	router.HandleFunc("/api/books/{id}", booksController.GetBook).Methods("GET")
+	router.HandleFunc("/api/books/{id}", booksController.UpdateBook).Methods("PUT", "OPTIONS")
+	router.HandleFunc("/api/books", booksController.AddBook).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/books/{id}", booksController.DeleteBook).Methods("DELETE", "OPTIONS")
+	router.HandleFunc("/api/registration", booksController.Registration).Methods("POST", "OPTIONS")
+	router.HandleFunc("/api/login", booksController.Login).Methods("POST", "OPTIONS")
+
 	log.Fatal(http.ListenAndServe(":3585", router))
 }

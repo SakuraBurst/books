@@ -1,8 +1,8 @@
 package models
 
 type Message struct {
-	Text   string
-	Status string
+	Text   string `json:"year"`
+	Status string `json:"status"`
 }
 
 func (err Message) Error() string {

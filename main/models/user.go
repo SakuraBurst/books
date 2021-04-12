@@ -11,11 +11,15 @@ import (
 )
 
 type User struct {
-	ID        int
-	FirstName string
-	LastName  string
-	Email     string
-	Password  string
+	ID        int    `json:"id"`
+	FirstName string `json:"first_name"`
+	LastName  string `json:"last_name"`
+	Email     string `json:"email"`
+	Password  string `json:"-"`
+}
+
+type UserResponse struct {
+	User InstanseMaker `json:"user"`
 }
 
 func (u User) IsValid() bool {
@@ -32,7 +36,7 @@ func (u User) NewInstanseFromJson(body io.ReadCloser) (InstanseMaker, error) {
 		u.Password = crypt.CryptPass([]byte(u.Password))
 		return u, nil
 	} else {
-		return User{}, errors.New("some data is unprocessable")
+		return nil, errors.New("some data is unprocessable")
 	}
 
 }
@@ -40,7 +44,7 @@ func (u User) NewInstanseFromJson(body io.ReadCloser) (InstanseMaker, error) {
 func (u User) NewInstanseFromDB(row Scans) (InstanseMaker, error) {
 	err := row.Scan(&u.ID, &u.FirstName, &u.LastName, &u.Email, &u.Password)
 	if err != nil {
-		return User{}, err
+		return nil, err
 	}
 	return u, nil
 }

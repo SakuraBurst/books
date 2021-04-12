@@ -8,14 +8,14 @@ import (
 	"github.com/SakuraBurst/books.git/main/models"
 )
 
-func ServerStop(err error) {
+func (c Controler) ServerStop(err error) {
 	if err != nil {
 		log.Fatal(err)
 	}
 
 }
 
-func SendErrorMessage(rw http.ResponseWriter, errorMessage error, errorStatus int) {
+func (c Controler) SendErrorMessage(rw http.ResponseWriter, errorMessage error, errorStatus int) {
 	rw.WriteHeader(errorStatus)
 	var errorjson []byte
 	if errorMessage != nil {

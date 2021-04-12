@@ -7,10 +7,10 @@ import (
 )
 
 type Book struct {
-	Title  string
-	ID     int
-	Author string
-	Year   string
+	Title  string `json:"title"`
+	ID     int    `json:"id"`
+	Author string `json:"author"`
+	Year   string `json:"year"`
 }
 
 func (book Book) IsValid() bool {
@@ -23,14 +23,14 @@ func (book Book) NewInstanseFromJson(body io.ReadCloser) (InstanseMaker, error) 
 	if book.IsValid() {
 		return book, nil
 	} else {
-		return Book{}, errors.New("some data is unprocessable")
+		return nil, errors.New("some data is unprocessable")
 	}
 }
 
 func (book Book) NewInstanseFromDB(row Scans) (InstanseMaker, error) {
 	err := row.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
 	if err != nil {
-		return Book{}, err
+		return nil, err
 	}
 	return book, nil
 }
