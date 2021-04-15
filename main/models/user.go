@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 
 	"errors"
@@ -15,11 +16,15 @@ type User struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
-	Password  string `json:"-"`
+	Password  string `json:"password"`
 }
 
 type UserResponse struct {
 	User InstanseMaker `json:"user"`
+}
+
+type UserMapResponse struct {
+	User map[string]interface{} `json:"user"`
 }
 
 func (u User) IsValid() bool {
@@ -32,7 +37,9 @@ func (u User) IsValid() bool {
 func (u User) NewInstanseFromJson(body io.ReadCloser) (InstanseMaker, error) {
 	decoder := json.NewDecoder(body)
 	decoder.Decode(&u)
+	fmt.Println(u)
 	if u.IsValid() {
+
 		u.Password = crypt.CryptPass([]byte(u.Password))
 		return u, nil
 	} else {

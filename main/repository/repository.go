@@ -59,6 +59,7 @@ func (r Repository) WriteToTheDatabase(newInstanse models.InstanseMaker, body io
 	} else {
 		fields := models.GetFields(newInstanse)
 		query := generateAddQuery(getInstanseTable(newInstanse), fields)
+		fmt.Println(query)
 		_, err := r.Database.Exec(query, fields.BdValues...)
 		if err != nil {
 			return err

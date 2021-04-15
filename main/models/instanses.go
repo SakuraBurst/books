@@ -32,7 +32,7 @@ func GetFields(instanse InstanseMaker) Fields {
 	var bdValues []interface{}
 	var fields Fields
 	for key, value := range instanseMap {
-		if key != "ID" {
+		if key != "ID" && key != "id" {
 			bdFields = append(bdFields, key)
 			switch typedValue := value.(type) {
 			case string:
@@ -52,10 +52,12 @@ func getMap(instanse InstanseMaker) map[string]interface{} {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var dummy interface{}
+	var dummy map[string]interface{}
 	err = json.Unmarshal(byteJson, &dummy)
 	if err != nil {
 		log.Fatal(err)
 	}
-	return dummy.(map[string]interface{})
+	return dummy
+	// var dummy interface{}
+	// return dummy.(map[string]interface{})
 }

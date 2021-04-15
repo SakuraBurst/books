@@ -22,13 +22,15 @@ func main() {
 	repo := repository.Repository{Database: database}
 	booksController := controllers.Controler{Repository: repo}
 	router.Use(middleware.ContentTypeMiddleware)
-	router.HandleFunc("/api/books", booksController.GetBooks).Methods("GET")
-	router.HandleFunc("/api/books/{id}", booksController.GetBook).Methods("GET")
-	router.HandleFunc("/api/books/{id}", booksController.UpdateBook).Methods("PUT", "OPTIONS")
-	router.HandleFunc("/api/books", booksController.AddBook).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/books/{id}", booksController.DeleteBook).Methods("DELETE", "OPTIONS")
-	router.HandleFunc("/api/registration", booksController.Registration).Methods("POST", "OPTIONS")
-	router.HandleFunc("/api/login", booksController.Login).Methods("POST", "OPTIONS")
+	spa := spaHandler{staticPath: "build", indexPath: "index.html"}
+	router.HandleFunc("/api/books", booksController.GetBooks).Methods(http.MethodGet)
+	router.HandleFunc("/api/books/{id}", booksController.GetBook).Methods(http.MethodGet)
+	router.HandleFunc("/api/books/{id}", booksController.UpdateBook).Methods(http.MethodPut, http.MethodOptions)
+	router.HandleFunc("/api/books", booksController.AddBook).Methods(http.MethodPost, http.MethodOptions)
+	router.HandleFunc("/api/books/{id}", booksController.DeleteBook).Methods(http.MethodDelete, http.MethodOptions)
+	router.HandleFunc("/api/registration", booksController.Registration).Methods(http.MethodPost, http.MethodOptions)
+	router.HandleFunc("/api/login", booksController.Login).Methods(http.MethodPost, http.MethodOptions)
+	router.PathPrefix("/").Handler(spa)
 
-	log.Fatal(http.ListenAndServe(":3585", router))
+	log.Fatal(http.ListenAndServe(":3584", router))
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/SakuraBurst/books.git/main/helpers"
 	"github.com/SakuraBurst/books.git/main/models"
 )
 
@@ -29,8 +30,15 @@ func (c Controler) Login(rw http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		c.SendErrorMessage(rw, err, http.StatusUnprocessableEntity)
 	} else {
-		userResp := models.UserResponse{User: user}
-		encoder.Encode(userResp)
+		npMap, err := helpers.DeletePasswordField(user)
+		if err != nil {
+			userResp := models.UserResponse{User: user}
+			encoder.Encode(userResp)
+		} else {
+			userResp := models.UserMapResponse{User: npMap}
+			encoder.Encode(userResp)
+		}
+
 	}
 
 }
