@@ -9,6 +9,7 @@ import (
 
 	"github.com/SakuraBurst/books.git/main/helpers/checks"
 	"github.com/SakuraBurst/books.git/main/helpers/crypt"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User struct {
@@ -16,15 +17,12 @@ type User struct {
 	FirstName string `json:"first_name"`
 	LastName  string `json:"last_name"`
 	Email     string `json:"email"`
-	Password  string `json:"password"`
+	Password  string `json:"password,omitempty"`
 }
 
 type UserResponse struct {
-	User InstanseMaker `json:"user"`
-}
-
-type UserMapResponse struct {
-	User map[string]interface{} `json:"user"`
+	Token string        `json:"token"`
+	User  InstanseMaker `json:"user"`
 }
 
 func (u User) IsValid() bool {
@@ -54,4 +52,13 @@ func (u User) NewInstanseFromDB(row Scans) (InstanseMaker, error) {
 		return nil, err
 	}
 	return u, nil
+}
+
+func (u *User) DeletePasswordField() {
+	u.Password = ""
+}
+
+func (u User) ComparePassword(pass []byte) bool {
+	fmt.Println(u)
+	return bcrypt.CompareHashAndPassword([]byte(u.Password), pass) == nil
 }

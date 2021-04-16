@@ -14,7 +14,7 @@ var db *sql.DB
 var err error
 
 func ConnectDatabase(envKey string) *sql.DB {
-	dbUrl := getEnv(envKey)
+	dbUrl := GetEnv(envKey)
 	db, err = sql.Open("postgres", dbUrl)
 	if err != nil {
 		log.Fatal(err)
@@ -26,7 +26,7 @@ func ConnectDatabase(envKey string) *sql.DB {
 	return db
 }
 
-func getEnv(key string) string {
+func GetEnv(key string) string {
 	err := godotenv.Load()
 	if err != nil {
 		fmt.Println("ну значит у тебя нет енвх што поделать то")

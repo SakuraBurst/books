@@ -27,6 +27,7 @@ func (c Controler) GetBook(rw http.ResponseWriter, req *http.Request) {
 		rw.WriteHeader(http.StatusNotFound)
 		resp.Encode(er)
 	} else {
+		models.GenerateToken()
 		rw.WriteHeader(http.StatusOK)
 		resp.Encode(book)
 	}
