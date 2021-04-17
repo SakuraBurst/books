@@ -17,20 +17,30 @@ import (
 var database *sql.DB
 
 func main() {
-	router := mux.NewRouter()
+
 	database = driver.ConnectDatabase("DB_URL")
 	repo := repository.Repository{Database: database}
 	booksController := controllers.Controler{Repository: repo}
-	router.Use(middleware.ContentTypeMiddleware)
-	spa := spaHandler{staticPath: "build", indexPath: "index.html"}
-	router.HandleFunc("/api/books", booksController.GetBooks).Methods(http.MethodGet)
-	router.HandleFunc("/api/books/{id}", booksController.GetBook).Methods(http.MethodGet)
-	router.HandleFunc("/api/books/{id}", booksController.UpdateBook).Methods(http.MethodPut, http.MethodOptions)
-	router.HandleFunc("/api/books", booksController.AddBook).Methods(http.MethodPost, http.MethodOptions)
-	router.HandleFunc("/api/books/{id}", booksController.DeleteBook).Methods(http.MethodDelete, http.MethodOptions)
-	router.HandleFunc("/api/registration", booksController.Registration).Methods(http.MethodPost, http.MethodOptions)
-	router.HandleFunc("/api/login", booksController.Login).Methods(http.MethodPost, http.MethodOptions)
-	router.PathPrefix("/").Handler(spa)
+	router := router(booksController)
 
 	log.Fatal(http.ListenAndServe(":3584", router))
+}
+
+func router(booksController controllers.Controler) *mux.Router {
+	router := mux.NewRouter()
+	router.Use(middleware.ContentTypeMiddleware)
+	spa := spaHandler{staticPath: "build", indexPath: "index.html"}
+	router.HandleFunc("/api/registration", booksController.Registration).Methods(http.MethodPost, http.MethodOptions)
+	router.HandleFunc("/api/login", booksController.Login).Methods(http.MethodPost, http.MethodOptions)
+	protected := router.PathPrefix("/api/v2").Subrouter()
+	protected.Use(middleware.AuthMiddleware)
+	protected.HandleFunc("/books", booksController.GetBooks).Methods(http.MethodGet)
+	protected.HandleFunc("/books/{id}", booksController.GetBook).Methods(http.MethodGet)
+	protected.HandleFunc("/books/{id}", booksController.UpdateBook).Methods(http.MethodPut, http.MethodOptions)
+	protected.HandleFunc("/books", booksController.AddBook).Methods(http.MethodPost, http.MethodOptions)
+	protected.HandleFunc("/books/{id}", booksController.DeleteBook).Methods(http.MethodDelete, http.MethodOptions)
+	protected.HandleFunc("/user", booksController.UpdateUser).Methods(http.MethodGet)
+
+	router.PathPrefix("/").Handler(spa)
+	return router
 }

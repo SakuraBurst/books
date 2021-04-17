@@ -8,21 +8,29 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-func GenerateToken() {
+type UserClaims struct {
+	UserId int `json:"user_id"`
+	jwt.StandardClaims
+}
+
+func GenerateToken(user User) string {
 	now := time.Now().Unix()
 	daySeconds := time.Hour.Seconds() * 24
 	fmt.Println(now)
 	// Create the Claims
-	claims := &jwt.StandardClaims{
-		ExpiresAt: now + int64(daySeconds),
-		Issuer:    "test",
+	claims := UserClaims{
+		user.ID,
+		jwt.StandardClaims{
+			ExpiresAt: now + int64(daySeconds),
+			Issuer:    "ya",
+		},
 	}
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	mySigningKey, _ := KeyFunc(token)
 	ss, _ := token.SignedString(mySigningKey)
-	fmt.Println(ss)
+	return ss
 
-	// tokens, err := jwt.Parse(ss, KeyFunc)
 }
 
 func KeyFunc(token *jwt.Token) (interface{}, error) {

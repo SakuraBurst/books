@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/SakuraBurst/books.git/main/models"
+	"github.com/dgrijalva/jwt-go"
 )
 
 func (c Controler) Registration(rw http.ResponseWriter, req *http.Request) {
@@ -33,13 +34,31 @@ func (c Controler) Login(rw http.ResponseWriter, req *http.Request) {
 	} else {
 		if user.ComparePassword([]byte(loginJson["password"])) {
 			user.DeletePasswordField()
-			userResp := models.UserResponse{User: user}
+			token := models.GenerateToken(user)
+			userResp := models.UserResponse{User: user, Token: token}
 			encoder.Encode(userResp)
 		} else {
 			err = errors.New("логин или пароль введены неверно")
 			c.SendErrorMessage(rw, err, http.StatusUnprocessableEntity)
 		}
 
+	}
+
+}
+
+func (c Controler) UpdateUser(rw http.ResponseWriter, req *http.Request) {
+	token := req.Header.Get("Authorization")
+	claims := jwt.MapClaims{}
+	jwt.ParseWithClaims(token, claims, models.KeyFunc)
+	userInt, err := c.Repository.GetOneFromDatabase(claims["user_id"], "", models.User{})
+	user := userInt.(models.User)
+	encoder := c.responseEncoder(rw)
+	if err != nil {
+		c.SendErrorMessage(rw, err, http.StatusUnprocessableEntity)
+	} else {
+		user.DeletePasswordField()
+		userResp := models.UserResponse{User: user, Token: token}
+		encoder.Encode(userResp)
 	}
 
 }
