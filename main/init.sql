@@ -5,3 +5,12 @@ CREATE TABLE books
     Author VARCHAR(50) NOT NULL,
     Year DATE NOT NULL 
 );
+CREATE TABLE users
+(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    first_name VARCHAR(50) NOT NULL,
+    last_name VARCHAR(50) NOT NULL,
+    email VARCHAR(150) NOT NULL,
+    password VARCHAR(150) NOT NULL,
+    CONSTRAINT email_unique UNIQUE (email)
+);
