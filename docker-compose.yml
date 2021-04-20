@@ -19,6 +19,5 @@ services:
     restart: always
     environment:
         - DB_URL=postgres://postgres:password@postgressss:5432/books?sslmode=disable
-        # - DB_URL=user=postgres dbname=books password=password sslmode=disable host=postgres port=5432
     ports:
       - 3584:3584
